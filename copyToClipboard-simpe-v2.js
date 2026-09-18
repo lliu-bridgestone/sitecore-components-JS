@@ -24,12 +24,14 @@
   }
 
   function showFeedback(icon) {
+    icon.classList.add('is-copied');
     var feedback = icon.parentElement && icon.parentElement.querySelector('.copy-to-clipboard-feedback');
-    if (!feedback) return;
-    feedback.classList.add('copy-to-clipboard-feedback--visible');
-    window.clearTimeout(feedback._copyFeedbackTimer);
-    feedback._copyFeedbackTimer = window.setTimeout(function () {
-      feedback.classList.remove('copy-to-clipboard-feedback--visible');
+    if (feedback) feedback.classList.add('copy-to-clipboard-feedback--visible');
+
+    window.clearTimeout(icon._copyFeedbackTimer);
+    icon._copyFeedbackTimer = window.setTimeout(function () {
+      icon.classList.remove('is-copied');
+      if (feedback) feedback.classList.remove('copy-to-clipboard-feedback--visible');
     }, 1800);
   }
 
@@ -40,24 +42,46 @@
   // sibling holds the mapped copy text, as long as the text element and
   // the icon's HTML block sit next to each other (text first) in the layout.
   var MAX_LEVELS = 6;
-  function findCopyText(icon) {
+  function findCopySibling(icon) {
     var node = icon;
     for (var i = 0; i < MAX_LEVELS && node && node.parentElement; i++) {
       var sib = node.previousElementSibling;
       if (sib && sib.textContent && sib.textContent.trim()) {
-        return sib.textContent.trim();
+        return sib;
       }
       node = node.parentElement;
     }
-    return '';
+    return null;
   }
 
   function handleActivate(icon) {
-    var text = findCopyText(icon);
+    var sibling = findCopySibling(icon);
+    var text = sibling ? sibling.textContent.trim() : '';
     if (!text) return;
     copyText(text)
       .then(function () { showFeedback(icon); })
       .catch(function (err) { console.error('Copy to clipboard failed:', err); });
+  }
+
+  // Match the icon's size to the font-size of the text it sits next to,
+  // rather than whatever font-size the icon's own block happens to inherit
+  // from the Style Guide. Runs once per icon on load.
+  function sizeIconToSibling(icon) {
+    var sibling = findCopySibling(icon);
+    if (!sibling) return;
+    var fontSize = window.getComputedStyle(sibling).fontSize;
+    if (fontSize) icon.style.fontSize = fontSize;
+  }
+
+  function initIcons() {
+    var icons = document.querySelectorAll('.copy-to-clipboard-icon');
+    for (var i = 0; i < icons.length; i++) sizeIconToSibling(icons[i]);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initIcons);
+  } else {
+    initIcons();
   }
 
   document.addEventListener('click', function (event) {
