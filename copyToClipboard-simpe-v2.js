@@ -1,29 +1,5 @@
-class CopyToClipboard extends HTMLElement {
-  connectedCallback() {
-    this.addEventListener('click', this.handleClick);
-    this.addEventListener('keydown', this.handleKeydown);
-  }
-
-  disconnectedCallback() {
-    this.removeEventListener('click', this.handleClick);
-    this.removeEventListener('keydown', this.handleKeydown);
-  }
-
-  handleClick = (event) => {
-    var icon = event.target.closest('.copy-to-clipboard-icon');
-    if (icon && this.contains(icon)) this.handleActivate(icon);
-  };
-
-  handleKeydown = (event) => {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    var icon = event.target.closest('.copy-to-clipboard-icon');
-    if (icon && this.contains(icon)) {
-      event.preventDefault();
-      this.handleActivate(icon);
-    }
-  };
-
-  copyText(text) {
+(function () {
+  function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
       return navigator.clipboard.writeText(text);
     }
@@ -47,7 +23,7 @@ class CopyToClipboard extends HTMLElement {
     });
   }
 
-  showFeedback(icon) {
+  function showFeedback(icon) {
     var feedback = icon.parentElement && icon.parentElement.querySelector('.copy-to-clipboard-feedback');
     if (!feedback) return;
     feedback.classList.add('copy-to-clipboard-feedback--visible');
@@ -63,9 +39,10 @@ class CopyToClipboard extends HTMLElement {
   // generated, until an ancestor's previous sibling contains text. That
   // sibling holds the mapped copy text, as long as the text element and
   // the icon's HTML block sit next to each other (text first) in the layout.
-  findCopyText(icon) {
+  var MAX_LEVELS = 6;
+  function findCopyText(icon) {
     var node = icon;
-    for (var i = 0; i < 6 && node && node.parentElement; i++) {
+    for (var i = 0; i < MAX_LEVELS && node && node.parentElement; i++) {
       var sib = node.previousElementSibling;
       if (sib && sib.textContent && sib.textContent.trim()) {
         return sib.textContent.trim();
@@ -75,13 +52,26 @@ class CopyToClipboard extends HTMLElement {
     return '';
   }
 
-  handleActivate(icon) {
-    var text = this.findCopyText(icon);
+  function handleActivate(icon) {
+    var text = findCopyText(icon);
     if (!text) return;
-    this.copyText(text)
-      .then(() => this.showFeedback(icon))
+    copyText(text)
+      .then(function () { showFeedback(icon); })
       .catch(function (err) { console.error('Copy to clipboard failed:', err); });
   }
-}
 
-customElements.define('copy-to-clipboard', CopyToClipboard);
+  document.addEventListener('click', function (event) {
+    var icon = event.target.closest('.copy-to-clipboard-icon');
+    if (icon) handleActivate(icon);
+  });
+
+  // Keyboard support in case the icon markup isn't a native <button>
+  document.addEventListener('keydown', function (event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    var icon = event.target.closest('.copy-to-clipboard-icon');
+    if (icon) {
+      event.preventDefault();
+      handleActivate(icon);
+    }
+  });
+})();
