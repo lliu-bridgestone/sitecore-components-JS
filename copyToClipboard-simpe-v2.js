@@ -23,22 +23,40 @@
     });
   }
 
-  function showFeedback(wrapper) {
-    wrapper.classList.add('copy-to-clipboard--copied');
-    window.clearTimeout(wrapper._copyFeedbackTimer);
-    wrapper._copyFeedbackTimer = window.setTimeout(function () {
-      wrapper.classList.remove('copy-to-clipboard--copied');
+  function showFeedback(icon) {
+    var feedback = icon.parentElement && icon.parentElement.querySelector('.copy-to-clipboard-feedback');
+    if (!feedback) return;
+    feedback.classList.add('copy-to-clipboard-feedback--visible');
+    window.clearTimeout(feedback._copyFeedbackTimer);
+    feedback._copyFeedbackTimer = window.setTimeout(function () {
+      feedback.classList.remove('copy-to-clipboard-feedback--visible');
     }, 1800);
   }
 
+  // The Component builder gives no way to add a custom class to a native
+  // Text element or container, so instead of looking for a specific class,
+  // walk up from the icon through whatever wrapper <div>s the builder
+  // generated, until an ancestor's previous sibling contains text. That
+  // sibling holds the mapped copy text, as long as the text element and
+  // the icon's HTML block sit next to each other (text first) in the layout.
+  var MAX_LEVELS = 6;
+  function findCopyText(icon) {
+    var node = icon;
+    for (var i = 0; i < MAX_LEVELS && node && node.parentElement; i++) {
+      var sib = node.previousElementSibling;
+      if (sib && sib.textContent && sib.textContent.trim()) {
+        return sib.textContent.trim();
+      }
+      node = node.parentElement;
+    }
+    return '';
+  }
+
   function handleActivate(icon) {
-    var wrapper = icon.closest('.copy-to-clipboard');
-    if (!wrapper) return;
-    var textEl = wrapper.querySelector('.copy-to-clipboard-text');
-    var text = ((textEl && textEl.textContent) || wrapper.dataset.copyText || '').trim();
+    var text = findCopyText(icon);
     if (!text) return;
     copyText(text)
-      .then(function () { showFeedback(wrapper); })
+      .then(function () { showFeedback(icon); })
       .catch(function (err) { console.error('Copy to clipboard failed:', err); });
   }
 
