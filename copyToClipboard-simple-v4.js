@@ -1,7 +1,6 @@
 class CopyToClipboard extends HTMLElement {
   connectedCallback() {
-
-    const copyText = "TEST123";
+    const copyText = this.getAttribute("copy-text") || "TEST-TEXT";
 
     this.innerHTML = `
       <style>
