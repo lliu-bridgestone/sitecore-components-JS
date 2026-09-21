@@ -1,78 +1,90 @@
 class CopyToClipboard extends HTMLElement {
+  constructor() {
+    super();
+  }
+
   connectedCallback() {
+    this.render();
+  }
 
-    console.log(this.outerHTML);
+  async copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
 
-    const copyText = this.getAttribute("copy-text") || "";
-    const copyText = "TEST123";
-    
+    return new Promise(function (resolve, reject) {
+      var textarea = document.createElement("textarea");
 
-    this.innerHTML = `
-      <style>
-        .copy-button {
-          border: none;
-          background: transparent;
-          cursor: pointer;
-          padding: 0;
-          color: #6b7280;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
+      textarea.value = text;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
 
-        .copy-button:hover {
-          color: #374151;
-        }
+      document.body.appendChild(textarea);
 
-        .copy-button.copied {
-          color: #16a34a;
-        }
+      textarea.focus();
+      textarea.select();
 
-        svg {
-          width: 18px;
-          height: 18px;
-        }
-      </style>
-
-      <button
-        class="copy-button"
-        type="button"
-        aria-label="Copy to clipboard"
-        title="Copy to clipboard"
-      >
-        <svg viewBox="0 0 24 24"
-             fill="none"
-             stroke="currentColor"
-             stroke-width="2"
-             stroke-linecap="round"
-             stroke-linejoin="round">
-          <rect x="9" y="9" width="10" height="10"></rect>
-          <path d="M5 15V5h10"></path>
-        </svg>
-      </button>
-    `;
-
-    const button = this.querySelector(".copy-button");
-
-    button.addEventListener("click", async () => {
       try {
-        await navigator.clipboard.writeText(copyText);
-
-        const original = button.innerHTML;
-
-        button.classList.add("copied");
-        button.innerHTML = "✓";
-
-        setTimeout(() => {
-          button.classList.remove("copied");
-          button.innerHTML = original;
-        }, 1500);
+        document.execCommand("copy");
+        resolve();
       } catch (err) {
-        console.error("Failed to copy text", err);
+        reject(err);
+      } finally {
+        document.body.removeChild(textarea);
       }
     });
   }
+
+  render() {
+    this.innerHTML = `
+      <button
+        type="button"
+        class="copy-to-clipboard-button"
+      >
+        Copy to Clipboard
+      </button>
+    `;
+
+    var button = this.querySelector(
+      ".copy-to-clipboard-button"
+    );
+
+    button.addEventListener("click", async () => {
+      var text =
+        this.copyText ||
+        this.getAttribute("copy-text") ||
+        "";
+
+      if (!text.trim()) {
+        return;
+      }
+
+      try {
+        await this.copyTextToClipboard(text);
+
+        var originalText = button.textContent;
+
+        button.textContent = "Copied!";
+
+        setTimeout(function () {
+          button.textContent = originalText;
+        }, 2000);
+      } catch (err) {
+        console.error(
+          "Copy to clipboard failed:",
+          err
+        );
+      }
+    });
+  }
+
+  copyTextToClipboard(text) {
+    return this.copyText(text);
+  }
 }
 
-customElements.define("copy-to-clipboard", CopyToClipboard);
-`
+customElements.define(
+  "copy-to-clipboard",
+  CopyToClipboard
+);
+``
