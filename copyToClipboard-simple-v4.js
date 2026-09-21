@@ -1,90 +1,73 @@
 class CopyToClipboard extends HTMLElement {
-  constructor() {
-    super();
-  }
-
   connectedCallback() {
-    this.render();
-  }
 
-  async copyText(text) {
-    if (navigator.clipboard && window.isSecureContext) {
-      return navigator.clipboard.writeText(text);
-    }
+    const copyText = "TEST123";
 
-    return new Promise(function (resolve, reject) {
-      var textarea = document.createElement("textarea");
-
-      textarea.value = text;
-      textarea.style.position = "fixed";
-      textarea.style.opacity = "0";
-
-      document.body.appendChild(textarea);
-
-      textarea.focus();
-      textarea.select();
-
-      try {
-        document.execCommand("copy");
-        resolve();
-      } catch (err) {
-        reject(err);
-      } finally {
-        document.body.removeChild(textarea);
-      }
-    });
-  }
-
-  render() {
     this.innerHTML = `
+      <style>
+        .copy-button {
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          padding: 0;
+          color: #6b7280;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .copy-button:hover {
+          color: #374151;
+        }
+
+        .copy-button.copied {
+          color: #16a34a;
+        }
+
+        svg {
+          width: 18px;
+          height: 18px;
+        }
+      </style>
+
       <button
+        class="copy-button"
         type="button"
-        class="copy-to-clipboard-button"
+        aria-label="Copy to clipboard"
+        title="Copy to clipboard"
       >
-        Copy to Clipboard
+        <svg viewBox="0 0 24 24"
+             fill="none"
+             stroke="currentColor"
+             stroke-width="2"
+             stroke-linecap="round"
+             stroke-linejoin="round">
+          <rect x="9" y="9" width="10" height="10"></rect>
+          <path d="M5 15V5h10"></path>
+        </svg>
       </button>
     `;
 
-    var button = this.querySelector(
-      ".copy-to-clipboard-button"
-    );
+    const button = this.querySelector(".copy-button");
 
     button.addEventListener("click", async () => {
-      var text =
-        this.copyText ||
-        this.getAttribute("copy-text") ||
-        "";
-
-      if (!text.trim()) {
-        return;
-      }
-
       try {
-        await this.copyTextToClipboard(text);
+        await navigator.clipboard.writeText(copyText);
 
-        var originalText = button.textContent;
+        const original = button.innerHTML;
 
-        button.textContent = "Copied!";
+        button.classList.add("copied");
+        button.innerHTML = "✓";
 
-        setTimeout(function () {
-          button.textContent = originalText;
-        }, 2000);
+        setTimeout(() => {
+          button.classList.remove("copied");
+          button.innerHTML = original;
+        }, 1500);
       } catch (err) {
-        console.error(
-          "Copy to clipboard failed:",
-          err
-        );
+        console.error("Failed to copy text", err);
       }
     });
   }
-
-  copyTextToClipboard(text) {
-    return this.copyText(text);
-  }
 }
 
-customElements.define(
-  "copy-to-clipboard",
-  CopyToClipboard
-);
-``
+customElements.define("copy-to-clipboard", CopyToClipboard);
