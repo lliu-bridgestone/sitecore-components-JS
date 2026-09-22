@@ -13,7 +13,10 @@ class CopyToClipboard extends HTMLElement {
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          font: inherit;
+          font-size: inherit;
           line-height: inherit;
+          vertical-align: middle;
         }
 
         .copy-button:hover {
