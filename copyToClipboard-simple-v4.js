@@ -40,9 +40,10 @@ class CopyToClipboard extends HTMLElement {
           color: #16a34a;
         }
 
-        svg {
-          width: max(18px, 1lh);
-          height: max(18px, 1lh);
+        .copy-button svg {
+          width: max(18px, var(--copy-icon-size, 18px));
+          height: max(18px, var(--copy-icon-size, 18px));
+          flex: 0 0 auto;
         }
       </style>
 
@@ -65,6 +66,19 @@ class CopyToClipboard extends HTMLElement {
     `;
 
     const button = this.querySelector(".copy-button");
+
+    const updateIconSize = () => {
+      const styles = getComputedStyle(button);
+      const lineHeight = parseFloat(styles.lineHeight);
+      const fontSize = parseFloat(styles.fontSize);
+      const iconSize = Math.max(18, lineHeight || fontSize || 18);
+      button.style.setProperty("--copy-icon-size", `${iconSize}px`);
+    };
+
+    updateIconSize();
+
+    const resizeObserver = new ResizeObserver(updateIconSize);
+    resizeObserver.observe(button);
 
     if (this.classList.contains("white")) {
       button.style.color = "#ffffff";
