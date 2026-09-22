@@ -65,6 +65,13 @@ class CopyToClipboard extends HTMLElement {
 
     const button = this.querySelector(".copy-button");
 
+    if (this.classList.contains("white")) {
+      button.style.color = "#ffffff";
+    } else if (this.classList.contains("grey")) {
+      button.style.color = "#6b7280";
+    }
+    const originalColor = button.style.color;
+
     button.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(copyText);
@@ -72,10 +79,12 @@ class CopyToClipboard extends HTMLElement {
         const original = button.innerHTML;
 
         button.classList.add("copied");
+        button.style.color = "#16a34a";
         button.innerHTML = "✓";
 
         setTimeout(() => {
           button.classList.remove("copied");
+          button.style.color = originalColor;
           button.innerHTML = original;
         }, 1500);
       } catch (err) {
