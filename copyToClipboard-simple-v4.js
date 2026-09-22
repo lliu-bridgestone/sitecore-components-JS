@@ -19,6 +19,22 @@ class CopyToClipboard extends HTMLElement {
           color: #374151;
         }
 
+        copy-to-clipboard.white .copy-button {
+          color: #ffffff;
+        }
+
+        copy-to-clipboard.white .copy-button:hover {
+          color: #e5e7eb;
+        }
+
+        copy-to-clipboard.grey .copy-button {
+          color: #6b7280;
+        }
+
+        copy-to-clipboard.grey .copy-button:hover {
+          color: #374151;
+        }
+
         .copy-button.copied {
           color: #16a34a;
         }
