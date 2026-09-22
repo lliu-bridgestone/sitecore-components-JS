@@ -19,19 +19,19 @@ class CopyToClipboard extends HTMLElement {
           color: #374151;
         }
 
-        copy-to-clipboard.white .copy-button {
+        .copy-button.white {
           color: #ffffff;
         }
 
-        copy-to-clipboard.white .copy-button:hover {
+        .copy-button.white:hover {
           color: #e5e7eb;
         }
 
-        copy-to-clipboard.grey .copy-button {
+        .copy-button.grey {
           color: #6b7280;
         }
 
-        copy-to-clipboard.grey .copy-button:hover {
+        .copy-button.grey:hover {
           color: #374151;
         }
 
@@ -46,7 +46,7 @@ class CopyToClipboard extends HTMLElement {
       </style>
 
       <button
-        class="copy-button"
+        class="copy-button ${this.classList.contains("white") ? "white" : this.classList.contains("grey") ? "grey" : ""}"
         type="button"
         aria-label="Copy to clipboard"
         title="Copy to clipboard"

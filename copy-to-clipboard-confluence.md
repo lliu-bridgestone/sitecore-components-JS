@@ -46,15 +46,15 @@ The `copy-text` attribute contains the exact text that will be copied.
 The icon is grey by default. Add a class to the custom element to choose the icon color:
 
 ```html
-<copy-to-clipboard class="icon-grey" copy-text="Grey icon"></copy-to-clipboard>
+<copy-to-clipboard class="grey" copy-text="Grey icon"></copy-to-clipboard>
 
-<copy-to-clipboard class="icon-white" copy-text="White icon"></copy-to-clipboard>
+<copy-to-clipboard class="white" copy-text="White icon"></copy-to-clipboard>
 ```
 
 Supported classes:
 
-- `icon-grey`: grey icon with a darker grey hover state
-- `icon-white`: white icon with a light grey hover state
+- `grey`: grey icon with a darker grey hover state
+- `white`: white icon with a light grey hover state
 
 The copied state remains green for both color options.
 
