@@ -44,8 +44,8 @@ class CopyToClipboard extends HTMLElement {
         }
 
         .copy-button svg {
-          width: max(18px, var(--copy-icon-size, 18px));
-          height: max(18px, var(--copy-icon-size, 18px));
+          width: min(24px, max(18px, var(--copy-icon-size, 18px)));
+          height: min(24px, max(18px, var(--copy-icon-size, 18px)));
           flex: 0 0 auto;
         }
       </style>
@@ -74,7 +74,7 @@ class CopyToClipboard extends HTMLElement {
       const styles = getComputedStyle(button);
       const lineHeight = parseFloat(styles.lineHeight);
       const fontSize = parseFloat(styles.fontSize);
-      const iconSize = Math.max(18, lineHeight || fontSize || 18);
+      const iconSize = Math.min(24, Math.max(18, lineHeight || fontSize || 18));
       button.style.setProperty("--copy-icon-size", `${iconSize}px`);
     };
 
@@ -89,6 +89,7 @@ class CopyToClipboard extends HTMLElement {
       button.style.color = "#6b7280";
     }
     const originalColor = button.style.color;
+    const copiedColor = originalColor || "#16a34a";
 
     button.addEventListener("click", async () => {
       try {
@@ -97,7 +98,7 @@ class CopyToClipboard extends HTMLElement {
         const original = button.innerHTML;
 
         button.classList.add("copied");
-        button.style.color = "#16a34a";
+        button.style.color = copiedColor;
         button.innerHTML = "✓";
 
         setTimeout(() => {

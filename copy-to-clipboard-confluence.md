@@ -56,7 +56,7 @@ Supported classes:
 - `grey`: grey icon with a darker grey hover state
 - `white`: white icon with a light grey hover state
 
-The copied state remains green for both color options.
+The copied tick keeps the selected color. If no color class is provided, the copied state is green.
 
 ## Sitecore Usage
 
