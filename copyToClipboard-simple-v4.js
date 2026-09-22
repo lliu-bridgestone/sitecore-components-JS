@@ -13,6 +13,7 @@ class CopyToClipboard extends HTMLElement {
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          line-height: inherit;
         }
 
         .copy-button:hover {
@@ -40,8 +41,8 @@ class CopyToClipboard extends HTMLElement {
         }
 
         svg {
-          width: 18px;
-          height: 18px;
+          width: max(18px, 1lh);
+          height: max(18px, 1lh);
         }
       </style>
 
